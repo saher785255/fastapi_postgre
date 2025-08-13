@@ -54,3 +54,33 @@ def create_username(db: Session, username_str: str, created_at: datetime = None)
     db.commit()
     db.refresh(obj)
     return obj
+class EmailTable(Base):
+    __tablename__ = "emails"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+# ------------------------
+# Pydantic Schemas
+# ------------------------
+class EmailBase(BaseModel):
+    email: str
+
+class EmailCreate(EmailBase):
+    pass
+
+class EmailOut(EmailBase):
+    id: int
+    created_at: datetime
+    class Config:
+        orm_mode = True
+
+# ------------------------
+# Insert Function
+# ------------------------
+def create_email(db: Session, email_str: str) -> EmailTable:
+    obj = EmailTable(email=email_str)
+    db.add(obj)
+    db.commit()
+    db.refresh(obj)
+    return obj
